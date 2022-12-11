@@ -1,0 +1,29 @@
+{
+  "name": "to-do-list",
+  "version": "1.0.0",
+  "description": "Practice project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server",
+    "build": "webpack",
+    "watch": "webpack -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dvluistorres/to-do-list.git"
+  },
+  "keywords": [
+    "to-do"
+  ],
+  "author": "Dv Luis Torres",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dvluistorres/to-do-list/issues"
+  },
+  "homepage": "https://github.com/dvluistorres/to-do-list#readme",
+  "devDependencies": {
+    "html-webpack-plugin": "^5.5.0",
+    "webpack-cli": "^5.0.1"
+  }
+}
