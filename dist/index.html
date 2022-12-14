@@ -13,16 +13,55 @@
     </div>
     <div class="content">
         <div class="sidebar">
-            <div class="projects">
-                <button class="addButton" onclick="project.createProject()">+</button>
-            </div>
+            <p>Tasks</p>
             <div class="tasks">
-                <button class="addButton" onclick="project.createTask()">+</button>
-                <button class="showButton" onclick="project.showTasks()">Show all tasks</button>
+                <button class="addButton" onclick="modal.createTask()">+</button>
+                <button class="showButton" onclick="domManipulation.showTasks()">Show all tasks</button>
             </div>
+            <p>Projects</p>
+            <div class="projects">
+                <button class="addButton" onclick="modal.createProject()">+</button>
+            </div>
+            
         </div>
         <div class="explorer"></div>
     </div>
-    <div class="footer"></div>
+
+    <div class="createProject-background" onclick="modal.createProject()"></div>
+    <div class="createProject">
+        <fieldset id="projectData" class="projectData">
+            <p>Add project</p>
+                <div>
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" placeholder="Your project name here" name="name" required>
+                </div>
+                <div>
+                    <label for="dueDate">Due date?:</label>
+                    <input type="date" value="dueDate" id="dueDate" name="dueDate" required>
+                </div>
+                <div>
+                    <label id="ProjectImportance" for="ProjectImportance">Project importance?:</label>
+                    <div>
+                        <input type="radio" id="important" name="ProjectImportance" value="important">
+                        <label for="important">important</label>
+                    </div>
+                    
+                    <div>
+                        <input type="radio" id="normal" name="ProjectImportance" value="normal" checked>
+                        <label for="normal">normal</label>
+                    </div>
+                    
+                    <div>
+                        <input type="radio" id="nonImportant" name="ProjectImportance" value="nonImportant">
+                        <label for="nonImportant">Non important</label>
+                    </div>
+                </div>
+                <button id="addButton" onclick="addPerson()" class="button-33" >Add person</button>
+                <button id="sidebarButton" onclick="toggleToExpenses()" class="button-33" ><b>Add Expenses</b></button>
+         </fieldset>
+    </div>
+
+
+    <div id="footer"></div>
 </body>
 </html>

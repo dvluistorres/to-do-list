@@ -15,17 +15,27 @@
         <div class="sidebar">
             <p>Tasks</p>
             <div class="tasks">
-                <button class="addButton" onclick="project.createTask()">+</button>
-                <button class="showButton" onclick="project.showTasks()">Show all tasks</button>
+                <button class="addButton" onclick="modal.createTask()">+</button>
+                <button class="showButton" onclick="domManipulation.showTasks()">Show all tasks</button>
             </div>
             <p>Projects</p>
             <div class="projects">
-                <button class="addButton" onclick="project.createProject()">+</button>
+                <div class="buttonWrapper" style='display:flex;'>
+                    <button class="addButton modalCreateProject">+</button>
+                    <button class="showButton" onclick="domManipulation.showTasks()">Show all projects</button>
+                </div>
             </div>
             
         </div>
         <div class="explorer"></div>
     </div>
+
+    <div class="createProject-background modalCreateProject"></div>
+    <div class="createProject" id="createProject">
+
+    </div>
+
+
     <div id="footer"></div>
 </body>
 </html>
