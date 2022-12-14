@@ -8,21 +8,24 @@
 </head>
 <body>
     <div class="header">
-        <img class="headerImg" src="./src/images/logo.png" alt="Notepad image">
+        <img class="headerImg" src='./images/logo.png' alt="Notepad image">
         <div class="headerText">To-Do List</div>
     </div>
     <div class="content">
         <div class="sidebar">
-            <div class="projects">
-                <button class="addButton" onclick="project.createProject()">+</button>
-            </div>
+            <p>Tasks</p>
             <div class="tasks">
                 <button class="addButton" onclick="project.createTask()">+</button>
                 <button class="showButton" onclick="project.showTasks()">Show all tasks</button>
             </div>
+            <p>Projects</p>
+            <div class="projects">
+                <button class="addButton" onclick="project.createProject()">+</button>
+            </div>
+            
         </div>
         <div class="explorer"></div>
     </div>
-    <div class="footer"></div>
+    <div id="footer"></div>
 </body>
 </html>

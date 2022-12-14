@@ -1,0 +1,105 @@
+body{
+    display:flex;
+    flex-direction: column;
+    margin: 0px;
+}
+
+.header {
+    height: 60px;
+    background: #6f6f6f;
+    color: #000000;
+    flex: 0 1 auto;
+    font-size: 30px;
+    font-weight: bolder;
+    padding-left: 20px;
+    display:flex;
+    align-items: center;
+    gap: 30px;
+}
+
+    .headerImg{
+        height: 50px;
+    }
+
+.content{
+    display: flex;
+    align-items: stretch;
+}
+
+.sidebar{
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    background-color: darkcyan;
+    flex: 0 1 300px;
+    margin-bottom: auto;
+    align-content: stretch;
+    height: calc(100vh - 60px);
+
+}
+    .sidebar p{
+        background-color: rgb(1, 53, 53);
+        color: white;
+        padding: 5px 0px 5px 0px;
+        font-size: 30px;
+        text-align: center;
+        margin: 0%;
+    }
+
+    .addButton{
+        display: block;
+        text-decoration: none;
+        font-weight: bolder;
+        background-color: #f7f7f7;
+        color: #818080;
+        font-size: 20px;
+        margin: 20px auto 20px auto;
+        width: 40px;
+        height: 40px;
+        position: relative;
+        text-align: center;
+        border-radius: 50%;
+        box-shadow: 0px 3px 8px #aaa, inset 0px 2px 3px #fff;
+        border: solid 1px transparent;
+    }
+
+    .addButton:hover{
+        cursor: pointer;
+        color: #f7f7f7;
+        background-color: #818080;
+        box-shadow: 0px 3px 8px #aaa, inset 0px 3px 5px #fff;
+    }
+
+    .projects{
+        display:flex;
+        flex-direction: column;
+        flex:1 0 auto;
+    }
+
+    .tasks{
+        display: flex;
+    }
+
+    .showButton{
+        display: block;
+        text-decoration: none;
+        font-weight: bolder;
+        background-color: #f7f7f7;
+        color: #818080;
+        font-size: 20px;
+        margin: 20px auto 20px auto;
+        width: auto;
+        height: 40px;
+        position: relative;
+        text-align: center;
+        border-radius: 10px;
+        box-shadow: 0px 3px 8px #aaa, inset 0px 2px 3px #fff;
+        border: solid 1px transparent;
+    }
+
+    .showButton:hover{
+        cursor: pointer;
+        color: #f7f7f7;
+        background-color: #818080;
+        box-shadow: 0px 3px 8px #aaa, inset 0px 3px 5px #fff;
+    }
