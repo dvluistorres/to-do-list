@@ -1,5 +1,6 @@
 import './style.css';
 import {footer} from './devFooter';
+import { compareAsc, parseISO } from 'date-fns'
 
 
 footer.add();
@@ -7,12 +8,19 @@ footer.add();
 const project = (()=>{
     const projectFactory = (name , importance , dueDate) => {
         let position = 0;
-        let tasks = [1,2,3,4,5,6,7,8,9,10];
+        let tasks = [];
         let completedTasks = 0;
-        return{name , importance , dueDate , position , tasks , completedTasks}
+        let progress = 0;
+        return{name , importance , dueDate , position , tasks , completedTasks , progress}
     }
 
-    let myProjects = []
+    const taskFactory = (name,dueDate,importance,notes,parentProject)=>{
+        let position = 0;
+        let isCompleted = false;
+        return{name,dueDate,importance,notes,parentProject,position,isCompleted}
+    }
+
+    let myProjects = [];
 
     const retrieveMyProjects = () =>{
         try {
@@ -27,13 +35,20 @@ const project = (()=>{
 
     function addProject(){
         const projectName = document.getElementById('projectName').value;
+        const myProjectsNames = myProjects.map(project => project.name.toLowerCase());
+        if (myProjectsNames.includes(projectName.toLowerCase())){
+            alert("Project name already in use");
+            return
+        }
         const projectImportance = document.querySelector('input[name="ProjectImportance"]:checked').value;
         const dueDate = document.getElementById('dueDate').value;
+        if (compareAsc(parseISO(dueDate),new Date()) < 0){
+            alert("Due date already passed");
+            return
+        }
         const newProject = projectFactory(projectName,projectImportance, dueDate);
-        newProject.numberOfTasks = 8;
-        newProject.completedTasks = 4;
-        document.getElementById('projectName').value = ""
-        document.getElementById('dueDate').value = ""
+        document.getElementById('projectName').value = '';
+        document.getElementById('dueDate').value = '';
         myProjects.push(newProject);
         myProjects.sort((a,b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0));
         let positionCounter = 0
@@ -47,10 +62,42 @@ const project = (()=>{
     }
 
     function addTask(){
-        console.log(1)
+        const taskName = document.getElementById('taskName').value;
+        const taskDueDate = document.getElementById('taskDueDate').value;
+        const taskImportance = document.querySelector('input[name="taskImportance"]:checked').value;
+        const taskNotes = document.getElementById('taskNotes').value;
+        const parentProject = document.getElementById('parentProject').value;
+        const newTask = taskFactory(taskName,taskDueDate,taskImportance,taskNotes,parentProject)
+        document.getElementById('taskName').value = '';
+        document.getElementById('taskDueDate').value = '';
+        document.getElementById('taskNotes').value = '';
+        const parentProjectIndex = myProjects.map(project => project.name).indexOf(parentProject);
+        myProjects[parentProjectIndex].tasks.push(newTask);
+        myProjects[parentProjectIndex].tasks.sort(compareAsc);
+        let positionCounter = 0;
+        for (const task of myProjects[parentProjectIndex].tasks){
+            task.position = positionCounter;
+            positionCounter++;
+        }
+        modal.createTask();
+        localStorage.setItem('myProjects', JSON.stringify(myProjects));
+        modifyDOM.addSidebarProject(myProjects);//to update bar progress
     }
 
-    return {addProject , retrieveMyProjects , addTask}
+    function clearProjects(){
+        if (!confirm("delete sure?")){
+            return
+        };
+        myProjects = [];
+        localStorage.setItem('myProjects', JSON.stringify(myProjects));
+        modifyDOM.addSidebarProject(myProjects);
+    }
+
+    function getMyProjects(){
+        return myProjects
+    }
+
+    return {retrieveMyProjects , addProject , addTask , clearProjects , getMyProjects}
 })()
 
 const modal = (()=>{
@@ -85,9 +132,13 @@ const modifyDOM = (()=>{
     const addSidebarProject = (projects) => {
         removeListenersByClass("sidebarCard" , sidebarCardClick);
         removeElementsByClass("sidebarCard");
+        removeElementsByClass("projectSelectionList");
         for (const project of projects){
             const addProgress = ({
-                progress: () => Math.round(project.completedTasks / project.tasks.length * 100)
+                setProgress: () => {
+                    let x = Math.round(project.completedTasks / project.tasks.length * 100)
+                    project.progress = x;
+                }
             });
             Object.assign(project,addProgress);
             const sidebarCard = createElement('div',`sidebarCard ${project.position}`);
@@ -95,7 +146,8 @@ const modifyDOM = (()=>{
             cardTitle.innerText = project.name;
             const cardProgressBar = createElement('div','cardProgressBar');
             const cardProgress = createElement('div','cardProgress');
-            cardProgress.style.width = `${project.progress()}%`;
+            project.setProgress();
+            cardProgress.style.width = `${project.progress}%`;
             const importanceColor = () => {
                 if (project.importance === 'important'){
                     return 'red'
@@ -121,7 +173,14 @@ const modifyDOM = (()=>{
     };
 
     function sidebarCardClick (){
-        console.log("1")
+        removeListenersByClass("explorerCard" , explorerCardClick);
+        removeElementsByClass("explorerCard");
+        const currentProject = project.getMyProjects()[event.currentTarget.classList[1]];
+        console.log(currentProject)
+    }
+
+    function explorerCardClick (){
+        console.log('1')
     }
 
     function removeElementsByClass(className){
@@ -156,10 +215,15 @@ for (const element of modalCreateTask){
     element.addEventListener('click',modal.createTask)
 }
 
-project.retrieveMyProjects();
-
 const projectCreateButton = document.getElementById('projectCreateButton');
 projectCreateButton.addEventListener('click',project.addProject);
 
 const taskCreateButton = document.getElementById('taskCreateButton');
 taskCreateButton.addEventListener('click',project.addTask);
+
+project.retrieveMyProjects();
+
+const clearProjects = document.getElementsByClassName('clearProjects');
+for (const element of clearProjects){
+    element.addEventListener('click',project.clearProjects)
+}

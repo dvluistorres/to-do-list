@@ -18,7 +18,7 @@
                 <button class="addButton modalCreateTask">+</button>
                 <button class="showButton">Show all tasks</button>
             </div>
-            <p>Projects</p>
+            <p class="clearProjects">Projects</p>
             <div class="projects" id="projects">
                 <div class="buttonWrapper" style='display:flex;'>
                     <button class="addButton modalCreateProject">+</button>
@@ -30,7 +30,7 @@
         <div class="explorer"></div>
     </div>
 
-    <div class="createProject-background modalCreateProject"></div>
+    <div class="createProject-background modalCreateProject" ></div>
     <div class="createProject">
         <fieldset id="projectData" class="projectData">
             <p>Add project</p>
@@ -79,7 +79,7 @@
             </div>
             <div>
                 <label for="taskDueDate">Due date?:</label>
-                <input type="date" value="taskDueDate" id="taskDueDate" name="taskDueDate" required>
+                <input type="date" value="taskDueDate" id="taskDueDate" name="taskDueDate" required/>
             </div>
             <div>
                 <label id="taskImportance" for="taskImportance">Task importance?:</label>
