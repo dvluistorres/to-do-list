@@ -34,10 +34,15 @@ body{
     flex: 0 1 300px;
     margin-bottom: auto;
     align-content: stretch;
-    height: calc(100vh - 60px - 45px);
-
+    height: min(calc(100vh - 60px - 45px));
+    overflow-y: auto;
+    overflow-x: hidden;
 }
-    .sidebar p{
+
+.sidebar::-webkit-scrollbar{
+    width: 0px;
+}
+    .sidebar>p{
         background-color: rgb(1, 53, 53);
         color: white;
         padding: 5px 0px 5px 0px;
@@ -144,7 +149,21 @@ body{
       body.projectModal .createProject {
         opacity: 1;
         visibility: visible;
-        animation: modal-in 1s;
+        animation: modal-in 0.5s;
+        font-family:fantasy;
+    }
+
+    @keyframes modal-in {
+        0%,
+        66% {
+          opacity: 0;
+          visibility: hidden;
+          translate: -50% -30%;
+        }
+        100% {
+          opacity: 1;
+          visibility: visible;
+        }
       }
       
       body.open .createProject {
@@ -152,3 +171,120 @@ body{
         visibility: hidden;
         translate: -50% -50%;
       }
+
+      fieldset {
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 16px;
+    }
+
+    fieldset p{
+        font-size: 35px;
+        text-align: end;
+        margin: 0px 0px 15px 0px;
+    }
+
+    fieldset>div{
+        display:flex;
+        flex-direction: column;
+        gap: 5px;
+        font-size: 16px;
+    }
+
+    fieldset>span{
+        margin-left: auto;
+    }
+
+    .sidebarCard{
+        display: block;
+        text-decoration: none;
+        font-weight: bolder;
+        background-color: rgb(243, 230, 230);
+        color: #5e5b5b;
+        font-size: 20px;
+        margin: 0px auto 20px auto;
+        width: 86%;
+        height: 50px;
+        text-align: left;
+        border-radius: 10px;
+        box-shadow: 0px 3px 8px #aaa, inset 0px 2px 3px #fff;
+        border: solid 1px transparent;
+        position: relative;
+    }
+
+    .sidebarCard:hover{
+        cursor: pointer;
+        scale: 1.05;
+        transition: 0.2s;
+        background-color: rgb(228, 215, 215);
+        border: solid 1px rgb(228, 215, 215);
+        box-shadow: 0px 3px 8px rgb(228, 215, 215), inset 0px 2px 3px rgb(228, 215, 215);
+    }
+
+    .sidebarCard>p{
+        margin: 8px 0px 5px 8px;
+    }
+
+    .cardProgressBar {
+        width: 70%;
+        background-color: grey;
+        margin-left: auto;
+      }
+
+    .cardProgress {
+        height: 7px;
+        background-color: rgb(39, 39, 145);
+      }
+
+      .createTask-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(1, 1);
+        background: rgba(0, 0, 0, 0.5);
+        transition: 0.5s;
+      }
+
+      body.taskModal .createTask-background {
+        visibility: visible;
+        opacity: 1;
+        animation: background-in 1s both;
+      }
+
+      .createTask {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        background: #3f3f3f;
+        color: #f9f9f9;
+        padding: 24px 24px;
+        width: 400px;
+        border-radius: 12px;
+        translate: -50% -50%;
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s;
+        font-weight: 900;
+      }
+
+      body.taskModal .createTask {
+        opacity: 1;
+        visibility: visible;
+        animation: modal-in 0.5s;
+        font-family:fantasy;
+    }
+
+      
+    body.open .createTask {
+    opacity: 0;
+    visibility: hidden;
+    translate: -50% -50%;
+    }

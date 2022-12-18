@@ -1,0 +1,41 @@
+#footer{
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    bottom:0;
+    position:relative;
+    height: 45px;
+    background: #eee;
+    color: rgb(0, 0, 0);
+    flex: initial;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap:5px;
+}
+
+#footer img{
+    height: 25px;
+    cursor: pointer;
+}
+
+#footer img:hover {
+    scale: 1.25;
+    animation: logoRotate 0.5s ease-in-out;
+
+}
+
+@keyframes logoRotate {
+    0%{
+        opacity: 0.8;
+        transform: rotate(2deg);
+    }
+    50% {
+      opacity: 0.9;
+      transform: rotate(180deg);
+
+    }
+    100% {
+      opacity: 1;
+      transform: rotate(360deg);
+    }
+  }
