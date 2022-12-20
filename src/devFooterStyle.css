@@ -16,6 +16,9 @@
 #footer img{
     height: 25px;
     cursor: pointer;
+    transition: 0.5s;
+    animation: alogoRotate 0.5s ease-in-out;
+    animation-fill-mode: backwards;
 }
 
 #footer img:hover {
@@ -24,15 +27,31 @@
 
 }
 
+
 @keyframes logoRotate {
     0%{
         opacity: 0.8;
-        transform: rotate(2deg);
+        transform: rotate(0deg);
     }
-    50% {
-      opacity: 0.9;
-      transform: rotate(180deg);
+    100% {
+      opacity: 1;
+      transform: rotate(360deg);
+    }@keyframes logoRotate {
+      0%{
+          opacity: 0.8;
+          transform: rotate(0deg);
+      }
+      100% {
+        opacity: 1;
+        transform: rotate(360deg);
+      }
+    }
+  }
 
+  @keyframes alogoRotate {
+    0%{
+        opacity: 0.8;
+        transform: rotate(0deg);
     }
     100% {
       opacity: 1;
