@@ -33,7 +33,7 @@
     <div class="createProject-background modalCreateProject" ></div>
     <div class="createProject">
         <fieldset id="projectData" class="projectData">
-            <p>Add project</p>
+            <p id="projectModalTitle">Add project</p>
             <div>
                 <label for="name">Name:</label>
                 <input type="text" id="projectName" placeholder="Your project name here" name="projectName" required>
@@ -64,6 +64,7 @@
             
             <span class="buttonWrapper">
                 <button id="projectCreateButton" class="modalButton"><b>Add Project</b></button>
+                <button id="projectEditButton" class="modalButton" style="display: none;"><b>Edit Project</b></button>
                 <button class="modalCreateProject modalButton" >Cancel</button>
             </span>
          </fieldset>
@@ -72,7 +73,7 @@
     <div class="createTask-background modalCreateTask"></div>
     <div class="createTask">
         <fieldset id="taskData" class="taskData">
-            <p>Add Task</p>
+            <p id="taskModalTitle">Add Task</p>
             <div>
                 <label for="name">Name:</label>
                 <input type="text" id="taskName" placeholder="Your task name here" name="taskName" required>
@@ -90,7 +91,7 @@
                     </div>
                     
                     <div>
-                        <input type="radio" id="normal" name="taskImportance" value="normal" checked>
+                        <input type="radio" id="normal" name="taskImportance" value="normal" checked="checked">
                         <label for="normal">Normal</label>
                     </div>
                     
@@ -112,7 +113,9 @@
             
             <span class="buttonWrapper">
                 <button id="taskCreateButton" class="modalButton"><b>Add Task</b></button>
+                <button id="taskEditButton" class="modalButton" style="display: none;"><b>Edit Task</b></button>
                 <button class="modalCreateTask modalButton" >Cancel</button>
+                
             </span>
          </fieldset>
     </div>

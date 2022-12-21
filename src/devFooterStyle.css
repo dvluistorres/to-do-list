@@ -36,15 +36,6 @@
     100% {
       opacity: 1;
       transform: rotate(360deg);
-    }@keyframes logoRotate {
-      0%{
-          opacity: 0.8;
-          transform: rotate(0deg);
-      }
-      100% {
-        opacity: 1;
-        transform: rotate(360deg);
-      }
     }
   }
 

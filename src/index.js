@@ -4,6 +4,9 @@ import { compareAsc, format, parseISO } from 'date-fns'
 
 
 footer.add();
+let editingTask = [];
+let editingProject = 0
+
 
 const project = (()=>{
     const _projectFactory = (name , importance , dueDate) => {
@@ -66,6 +69,39 @@ const project = (()=>{
         saveToLocal();
     }
 
+    function editProject(){
+        const currentProject = myProjects[editingProject];
+        const projectName = document.getElementById('projectName').value;
+        const myProjectsNames = myProjects.map(project => project.name.toLowerCase());
+        myProjectsNames.splice(currentProject.position,1);//Don't check for actual name
+        if (myProjectsNames.includes(projectName.toLowerCase())){
+            alert("Project name already in use");
+            return
+        }
+        const projectImportance = document.querySelector('input[name="ProjectImportance"]:checked').value;
+        const dueDate = document.getElementById('dueDate').value;
+        if (compareAsc(parseISO(dueDate),new Date()) < 0){
+            alert("Due date already passed");
+            return
+        } else if (dueDate == ''){
+            alert('Please insert due date');
+            return
+        }
+        currentProject.name = projectName;
+        currentProject.importance = projectImportance;
+        currentProject.dueDate = dueDate;
+        myProjects.sort((a,b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0));
+        let positionCounter = 0
+        for (const project of myProjects){
+            project.position = positionCounter;
+            positionCounter++;
+        }
+        modifyDOM.addSidebarProject(myProjects);
+        modal.createProject();
+        modifyDOM.updateExplorer(currentProject.position)
+        saveToLocal();
+    }
+
     function addTask(){
         const taskName = document.getElementById('taskName').value;
         const taskDueDate = document.getElementById('taskDueDate').value;
@@ -91,6 +127,26 @@ const project = (()=>{
 
     }
 
+    function editTask(){
+        const currentTask = myProjects[editingTask[0]].tasks[editingTask[1]];
+        currentTask.name = document.getElementById('taskName').value;
+        currentTask.dueDate = document.getElementById('taskDueDate').value;
+        currentTask.importance = document.querySelector('input[name="taskImportance"]:checked').value;
+        currentTask.notes = document.getElementById('taskNotes').value;
+        currentTask.parentProject = document.getElementById('parentProject').value;
+        const parentProjectIndex = myProjects.map(project => project.name).indexOf(currentTask.parentProject);
+        myProjects[parentProjectIndex].tasks.sort(compareAsc);
+        let positionCounter = 0;
+        for (const task of myProjects[parentProjectIndex].tasks){
+            task.position = positionCounter;
+            positionCounter++;
+        }
+        modal.createTask();
+        saveToLocal();
+        modifyDOM.updateExplorer(myProjects.findIndex(project => project.name === currentTask.parentProject))
+
+    }
+
     function clearProjects(){
         if (!confirm("delete sure?")){
             return
@@ -109,11 +165,14 @@ const project = (()=>{
         myProjects[position].completedTasks = completed
     }
 
-    return {retrieveMyProjects , addProject , addTask , clearProjects , getMyProjects , updateCompletedTasks , saveToLocal}
+    return {retrieveMyProjects , addProject , editProject , addTask , editTask , clearProjects , getMyProjects , updateCompletedTasks , saveToLocal}
 })()
 
 const modal = (()=>{
     const createProject = () => {
+        document.getElementById('projectName').value = '';
+        document.getElementById('dueDate').value = '';
+        
         const bodyClassList = document.body.classList;
 
         if (bodyClassList.contains("projectModal")) {
@@ -123,21 +182,68 @@ const modal = (()=>{
           bodyClassList.remove("open");
           bodyClassList.add("projectModal");
         }
+        setTimeout(()=>{
+            document.getElementById('projectModalTitle').innerText = 'Add Project'
+            document.getElementById('projectCreateButton').style.display = "inline-block";
+            document.getElementById('projectEditButton').style.display = "none";
+        },500)
       };
 
-    const createTask = () => {
-    const bodyClassList = document.body.classList;
+      const editProject = () => {
+        document.getElementById('projectEditButton').style.display = "inline-block";
+        document.getElementById('projectCreateButton').style.display = "none";
+        document.getElementById('projectModalTitle').innerText = 'Edit Project'
 
-    if (bodyClassList.contains("taskModal")) {
-        bodyClassList.remove("taskModal");
-        bodyClassList.add("open");
-    } else {
-        bodyClassList.remove("open");
-        bodyClassList.add("taskModal");
-    }
+        const bodyClassList = document.body.classList;
+
+        if (bodyClassList.contains("projectModal")) {
+          bodyClassList.remove("projectModal");
+          bodyClassList.add("open");
+        } else {
+          bodyClassList.remove("open");
+          bodyClassList.add("projectModal");
+        }
+        };
+
+    const createTask = () => {
+        document.getElementById('taskName').value = '';
+        document.getElementById('taskDueDate').value = '';
+        document.getElementById('taskNotes').value = '';        
+
+        const bodyClassList = document.body.classList;
+
+        if (bodyClassList.contains("taskModal")) {
+            bodyClassList.remove("taskModal");
+            bodyClassList.add("open");
+        } else {
+            bodyClassList.remove("open");
+            bodyClassList.add("taskModal");
+        }
+        setTimeout(()=>{
+            document.getElementById('taskModalTitle').innerText = 'Add Task'
+            document.getElementById('taskCreateButton').style.display = "inline-block";
+            document.getElementById('taskEditButton').style.display = "none";
+        },500)
+        
     };
 
-    return {createProject,createTask}
+    const editTask = () => {
+        document.getElementById('taskEditButton').style.display = "inline-block";
+        document.getElementById('taskCreateButton').style.display = "none";
+        document.getElementById('taskModalTitle').innerText = 'Edit Task'
+
+        const bodyClassList = document.body.classList;
+    
+        if (bodyClassList.contains("taskModal")) {
+            bodyClassList.remove("taskModal");
+            bodyClassList.add("open");
+        } else {
+            bodyClassList.remove("open");
+            bodyClassList.add("taskModal");
+        }
+        };
+
+    return {createProject,createTask,editTask,editProject}
 })()
 
 const modifyDOM = (()=>{
@@ -197,9 +303,11 @@ const modifyDOM = (()=>{
         const explorer = document.getElementById('explorer');
         _removeListenersByClass("explorerCard" ,'click' , _explorerCardTitleClick);
         _removeElementsByClass("explorerCard");
+        _removeListenersByClass("taskEditButton" ,'click' , _explorerCardClick);
         _removeElementsByClass("taskCard");
         const currentProject = project.getMyProjects()[projectPosition];
         const explorerTitle = createElement('div','explorerCard explorerTittle');
+        explorerTitle.setAttribute('projectNumber',`${projectPosition}`)
         const cardTitle = createElement ('p','cardTitle');
         cardTitle.innerText = currentProject.name;
         const cardDate = createElement ('span','cardDate');
@@ -212,7 +320,9 @@ const modifyDOM = (()=>{
         cardProgressBar.append(cardProgress);
         explorerTitle.append(cardTitle , cardDate , cardProgressBar);
         explorer.appendChild(explorerTitle);
+        explorerTitle.addEventListener('click',_explorerCardTitleClick)
         //Crate task cards
+        let cardPosition = 0;
         for (const task of currentProject.tasks){
             const taskCard = createElement('div','taskCard');
             const cardCheckbox = createElement('input','cardCheckbox');
@@ -236,10 +346,16 @@ const modifyDOM = (()=>{
             cardTitle.innerText = task.name;
             const cardDate = createElement('div','taskDate');
             cardDate.innerText = format(parseISO(task.dueDate),'dd/MM/yyyy');
+            const taskEditButton = createElement('button',`taskEditButton`);
+            taskEditButton.setAttribute('projectNumber',`${projectPosition}`);
+            taskEditButton.setAttribute('taskNumber',`${cardPosition}`);
+            taskEditButton.innerText = '✎';
             const cardImportance = createElement('div','taskImportance');
             cardImportance.style.backgroundColor = _importanceColor(task);
-            taskCard.append(cardCheckbox,cardTitle,cardDate,cardImportance);
+            taskCard.append(cardCheckbox , cardTitle , cardDate , taskEditButton , cardImportance);
+            taskEditButton.addEventListener('click',_explorerCardClick);
             explorer.appendChild(taskCard);
+            cardPosition++;
         }
     }
 
@@ -248,13 +364,28 @@ const modifyDOM = (()=>{
             if (event.currentTarget.classList[0] === 'sidebarCard'){
                 return event.currentTarget.classList[1]
             }}
-
+        document.getElementById('parentProject').selectedIndex = clickedProjectPosition();
         updateExplorer(clickedProjectPosition()); 
         }
 
     function _explorerCardTitleClick (){
-        console.log('1')
+        const currentProject = project.getMyProjects()[event.currentTarget.getAttribute('projectNumber')];
+        document.getElementById('projectName').value = currentProject.name;
+        document.getElementById('dueDate').value = currentProject.dueDate;
+        modal.editProject();
+        editingProject = event.currentTarget.getAttribute('projectNumber');
+        console.log(editingProject)
     }
+
+    function _explorerCardClick (){
+        const currentTask = project.getMyProjects()[event.currentTarget.getAttribute('projectNumber')].tasks[event.currentTarget.getAttribute('taskNumber')];
+        document.getElementById('taskName').value = currentTask.name;
+        document.getElementById('taskDueDate').value = currentTask.dueDate;
+        document.getElementById('taskNotes').value = currentTask.notes;
+        document.getElementById('parentProject').value = currentTask.parentProject;
+        modal.editTask();
+        editingTask = [event.currentTarget.getAttribute('projectNumber') , event.currentTarget.getAttribute('taskNumber')];
+    }   
 
     function _removeElementsByClass(className){
         const elements = document.getElementsByClassName(className);
@@ -291,8 +422,14 @@ for (const element of modalCreateTask){
 const projectCreateButton = document.getElementById('projectCreateButton');
 projectCreateButton.addEventListener('click',project.addProject);
 
+const projectEditButton = document.getElementById('projectEditButton');
+projectEditButton.addEventListener('click',project.editProject);
+
 const taskCreateButton = document.getElementById('taskCreateButton');
 taskCreateButton.addEventListener('click',project.addTask);
+
+const taskEditButton = document.getElementById('taskEditButton');
+taskEditButton.addEventListener('click',project.editTask);
 
 project.retrieveMyProjects();
 
