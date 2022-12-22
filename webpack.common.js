@@ -6,7 +6,6 @@ const fontsRules = {test: /\.(woff|woff2|eot|ttf|otf)$/i, type: 'asset/resource'
 const htmlRules = {test: /\.(html)$/,use: ['html-loader'],}
 
 module.exports = {
-  mode: 'development',
   module: {
     rules: [
       cssRules,
@@ -17,12 +16,6 @@ module.exports = {
   },
   entry: {
     main: './src/index.js',
-  },
-  devtool: 'inline-source-map',
-  devServer: {
-    static: './dist',
-    open: true,
-    //overlay: true,
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -35,7 +28,4 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     clean: true,
   },
- optimization: {
-   runtimeChunk: 'single',
- },
-};
+}
