@@ -14,7 +14,8 @@ const project = (()=>{
         let tasks = [];
         let completedTasks = 0;
         let progress = 0;
-        return{name , importance , dueDate , position , tasks , completedTasks , progress}
+        let isCompleted = false;
+        return{name , importance , dueDate , position , tasks , completedTasks , progress , isCompleted}
     }
 
     const _taskFactory = (name,dueDate,importance,notes,parentProject)=>{
@@ -87,6 +88,11 @@ const project = (()=>{
             alert('Please insert due date');
             return
         }
+        let currentTasks = currentProject.tasks;
+        currentTasks = currentTasks.map((a) => {
+            a.parentProject = projectName
+            return a
+        })
         currentProject.name = projectName;
         currentProject.importance = projectImportance;
         currentProject.dueDate = dueDate;
@@ -102,19 +108,45 @@ const project = (()=>{
         saveToLocal();
     }
 
+    function deleteProject(){
+        if(!confirm('Are you sure you want to delete this project?')){return}
+        const projectNumber = event.currentTarget.getAttribute('projectNumber')
+        myProjects.splice(projectNumber,1);
+        let positionCounter = 0;
+        for (const project of myProjects){
+            project.position = positionCounter;
+            positionCounter++;
+        }
+        modifyDOM.addSidebarProject(myProjects);
+        modifyDOM.updateExplorer(projectNumber);
+        saveToLocal();
+    }
+
     function addTask(){
         const taskName = document.getElementById('taskName').value;
+        const parentProject = document.getElementById('parentProject').value;
+        const parentProjectIndex = myProjects.map(project => project.name).indexOf(parentProject);
+        const myProjectTasksNames = myProjects[parentProjectIndex].tasks.map(task => task.name.toLowerCase());
+        if (myProjectTasksNames.includes(taskName.toLowerCase())){
+            alert("Task name already in use in this project");
+            return
+        }
         const taskDueDate = document.getElementById('taskDueDate').value;
+        if (compareAsc(parseISO(taskDueDate),new Date()) < 0){
+            alert("Due date already passed");
+            return
+        } else if (taskDueDate == ''){
+            alert('Please insert due date');
+            return
+        }
         const taskImportance = document.querySelector('input[name="taskImportance"]:checked').value;
         const taskNotes = document.getElementById('taskNotes').value;
-        const parentProject = document.getElementById('parentProject').value;
         const newTask = _taskFactory(taskName,taskDueDate,taskImportance,taskNotes,parentProject)
         document.getElementById('taskName').value = '';
         document.getElementById('taskDueDate').value = '';
         document.getElementById('taskNotes').value = '';
-        const parentProjectIndex = myProjects.map(project => project.name).indexOf(parentProject);
         myProjects[parentProjectIndex].tasks.push(newTask);
-        myProjects[parentProjectIndex].tasks.sort(compareAsc);
+        myProjects[parentProjectIndex].tasks.sort((a,b) => compareAsc(parseISO(a.dueDate),parseISO(b.dueDate)));
         let positionCounter = 0;
         for (const task of myProjects[parentProjectIndex].tasks){
             task.position = positionCounter;
@@ -129,13 +161,29 @@ const project = (()=>{
 
     function editTask(){
         const currentTask = myProjects[editingTask[0]].tasks[editingTask[1]];
-        currentTask.name = document.getElementById('taskName').value;
+        const taskName = document.getElementById('taskName').value;
+        const parentProject = document.getElementById('parentProject').value;
+        const parentProjectIndex = myProjects.map(project => project.name).indexOf(parentProject);
+        const myProjectTasksNames = myProjects[parentProjectIndex].tasks.map(task => task.name.toLowerCase());
+        myProjectTasksNames.splice(myProjectTasksNames.indexOf(currentTask.name),1);//Don't check for actual name
+        if (myProjectTasksNames.includes(taskName.toLowerCase())){
+            alert("Task name already in use in this project");
+            return
+        }
+        const taskDueDate = document.getElementById('taskDueDate').value;
+        if (compareAsc(parseISO(taskDueDate),new Date()) < 0){
+            alert("Due date already passed");
+            return
+        } else if (taskDueDate == ''){
+            alert('Please insert due date');
+            return
+        }
+        currentTask.name = taskName;
         currentTask.dueDate = document.getElementById('taskDueDate').value;
         currentTask.importance = document.querySelector('input[name="taskImportance"]:checked').value;
         currentTask.notes = document.getElementById('taskNotes').value;
-        currentTask.parentProject = document.getElementById('parentProject').value;
-        const parentProjectIndex = myProjects.map(project => project.name).indexOf(currentTask.parentProject);
-        myProjects[parentProjectIndex].tasks.sort(compareAsc);
+        currentTask.parentProject = parentProject;
+        myProjects[parentProjectIndex].tasks.sort((a,b) => compareAsc(parseISO(a.dueDate),parseISO(b.dueDate)));
         let positionCounter = 0;
         for (const task of myProjects[parentProjectIndex].tasks){
             task.position = positionCounter;
@@ -145,6 +193,20 @@ const project = (()=>{
         saveToLocal();
         modifyDOM.updateExplorer(myProjects.findIndex(project => project.name === currentTask.parentProject))
 
+    }
+
+    function deleteTask(){
+        if(!confirm('Are you sure you want to delete this task?')){return}
+        const projectNumber = event.currentTarget.getAttribute('projectNumber')
+        const taskNumber = event.currentTarget.getAttribute('taskNumber')
+        myProjects[projectNumber].tasks.splice(taskNumber,1);
+        let positionCounter = 0;
+        for (const task of myProjects[projectNumber].tasks){
+            task.position = positionCounter;
+            positionCounter++;
+        }
+        modifyDOM.updateExplorer(projectNumber);
+        saveToLocal();
     }
 
     function clearProjects(){
@@ -165,7 +227,7 @@ const project = (()=>{
         myProjects[position].completedTasks = completed
     }
 
-    return {retrieveMyProjects , addProject , editProject , addTask , editTask , clearProjects , getMyProjects , updateCompletedTasks , saveToLocal}
+    return {retrieveMyProjects , addProject , editProject , deleteProject , addTask , editTask , deleteTask , clearProjects , getMyProjects , updateCompletedTasks , saveToLocal}
 })()
 
 const modal = (()=>{
@@ -259,6 +321,16 @@ const modifyDOM = (()=>{
                 }
             });
             Object.assign(project,addProgress);
+            const checkCompletion = ({
+                checkCompletion: () => {
+                    if (project.progress === 100){
+                        project.isCompleted = true;
+                    } else {
+                        project.isCompleted = false;
+                    }
+                }
+            });
+            Object.assign(project,checkCompletion);
             const sidebarCard = createElement('div',`sidebarCard ${project.position}`);
             const cardTitle = createElement ('p','cardTitle');
             cardTitle.innerText = project.name;
@@ -288,29 +360,37 @@ const modifyDOM = (()=>{
 
     const _importanceColor = (currentProject) => {
         if (currentProject.isCompleted){
-            return 'green'
+            return 'var(--completedColor)'
         } else if (currentProject.importance === 'important'){
-            return 'red'
+            return 'var(--importantColor)'
         } else if (currentProject.importance === 'normal'){
-            return 'orange'
+            return 'var(--normalColor)'
         } else {
-            return 'yellow'
+            return 'var(--nonImportantColor)'
         }
     }
 
     function updateExplorer(projectPosition){
         //Create Title
         const explorer = document.getElementById('explorer');
-        _removeListenersByClass("explorerCard" ,'click' , _explorerCardTitleClick);
+        _removeListenersByClass("explorerCard" ,'click' , _projectEditButton);
         _removeElementsByClass("explorerCard");
-        _removeListenersByClass("taskEditButton" ,'click' , _explorerCardClick);
+        _removeListenersByClass("taskEditButton" ,'click' , _taskEditButton);
         _removeElementsByClass("taskCard");
         const currentProject = project.getMyProjects()[projectPosition];
         const explorerTitle = createElement('div','explorerCard explorerTittle');
-        explorerTitle.setAttribute('projectNumber',`${projectPosition}`)
+        explorerTitle.setAttribute('projectNumber',`${projectPosition}`);
+        const projectEditButton = createElement('button','projectEditButton');
+        projectEditButton.setAttribute('projectNumber',`${projectPosition}`);
+        projectEditButton.innerText = '✏️';
+        const projectDeleteButton = createElement('button','projectDeleteButton');
+        projectDeleteButton.setAttribute('projectNumber',`${projectPosition}`);
+        projectDeleteButton.innerText = '🗑️';
         const cardTitle = createElement ('p','cardTitle');
         cardTitle.innerText = currentProject.name;
-        const cardDate = createElement ('span','cardDate');
+        cardTitle.appendChild(projectEditButton);
+        cardTitle.appendChild(projectDeleteButton);
+        const cardDate = createElement ('div','cardDate');
         cardDate.innerText = currentProject.dueDate;
         const cardProgressBar = createElement('div','cardProgressBar');
         const cardProgress = createElement('div','cardProgress');
@@ -320,7 +400,8 @@ const modifyDOM = (()=>{
         cardProgressBar.append(cardProgress);
         explorerTitle.append(cardTitle , cardDate , cardProgressBar);
         explorer.appendChild(explorerTitle);
-        explorerTitle.addEventListener('click',_explorerCardTitleClick)
+        projectEditButton.addEventListener('click',_projectEditButton);
+        projectDeleteButton.addEventListener('click',project.deleteProject)
         //Crate task cards
         let cardPosition = 0;
         for (const task of currentProject.tasks){
@@ -349,15 +430,106 @@ const modifyDOM = (()=>{
             const taskEditButton = createElement('button',`taskEditButton`);
             taskEditButton.setAttribute('projectNumber',`${projectPosition}`);
             taskEditButton.setAttribute('taskNumber',`${cardPosition}`);
-            taskEditButton.innerText = '✎';
+            taskEditButton.innerText = '✏️';
+            const taskDeleteButton = createElement('button','taskDeleteButton');
+            taskDeleteButton.setAttribute('projectNumber',`${projectPosition}`);
+            taskDeleteButton.setAttribute('taskNumber',`${cardPosition}`);
+            taskDeleteButton.innerText = '🗑️';
             const cardImportance = createElement('div','taskImportance');
             cardImportance.style.backgroundColor = _importanceColor(task);
-            taskCard.append(cardCheckbox , cardTitle , cardDate , taskEditButton , cardImportance);
-            taskEditButton.addEventListener('click',_explorerCardClick);
+            taskCard.append(cardCheckbox , cardTitle , cardDate , taskEditButton , taskDeleteButton , cardImportance);
+            taskEditButton.addEventListener('click',_taskEditButton);
+            taskDeleteButton.addEventListener('click',project.deleteTask)
             explorer.appendChild(taskCard);
             cardPosition++;
         }
     }
+
+    function showAllProjects(){
+        _removeListenersByClass("explorerCard" ,'click' , _projectEditButton);
+        _removeElementsByClass("explorerCard");
+        _removeListenersByClass("taskEditButton" ,'click' , _taskEditButton);
+        _removeElementsByClass("taskCard");
+        for (let projectPosition = 0 ; projectPosition < project.getMyProjects().length ; projectPosition++){
+            const explorer = document.getElementById('explorer');
+            const currentProject = project.getMyProjects()[projectPosition];
+            const explorerTitle = createElement('div','explorerCard explorerTittle');
+            explorerTitle.setAttribute('projectNumber',`${projectPosition}`);
+            const projectEditButton = createElement('button','projectEditButton');
+            projectEditButton.setAttribute('projectNumber',`${projectPosition}`);
+            projectEditButton.innerText = '✏️';
+            const projectDeleteButton = createElement('button','projectDeleteButton');
+            projectDeleteButton.setAttribute('projectNumber',`${projectPosition}`);
+            projectDeleteButton.innerText = '🗑️';
+            const cardTitle = createElement ('p','cardTitle');
+            cardTitle.innerText = currentProject.name;
+            cardTitle.appendChild(projectEditButton);
+            cardTitle.appendChild(projectDeleteButton);
+            const cardDate = createElement ('div','cardDate');
+            cardDate.innerText = currentProject.dueDate;
+            const cardProgressBar = createElement('div','cardProgressBar');
+            const cardProgress = createElement('div','cardProgress');
+            currentProject.setProgress();
+            cardProgress.style.width = `${currentProject.progress}%`;
+            explorerTitle.style.borderBottom = `solid 3px ${_importanceColor(currentProject)}`;
+            cardProgressBar.append(cardProgress);
+            explorerTitle.append(cardTitle , cardDate , cardProgressBar);
+            explorer.appendChild(explorerTitle);
+            projectEditButton.addEventListener('click',_projectEditButton);
+            projectDeleteButton.addEventListener('click',project.deleteProject)
+        }
+    }
+
+    function showAllTasks(){
+        _removeListenersByClass("explorerCard" ,'click' , _projectEditButton);
+        _removeElementsByClass("explorerCard");
+        _removeListenersByClass("taskEditButton" ,'click' , _taskEditButton);
+        _removeElementsByClass("taskCard");
+        let allTasks=[]
+        for (let projectPosition = 0 ; projectPosition < project.getMyProjects().length ; projectPosition++){
+            allTasks = allTasks.concat(project.getMyProjects()[projectPosition].tasks);
+        }
+        for (const task of allTasks){
+            const projectPosition = project.getMyProjects().map(project => project.name.toLowerCase()).indexOf(task.parentProject.toLowerCase());
+            const taskCard = createElement('div','taskCard');
+            const cardCheckbox = createElement('input','cardCheckbox');
+            cardCheckbox.setAttribute('type','checkbox');
+            cardCheckbox.checked = task.isCompleted;
+            const updateCompletion = ({
+                updateCompletion: () => {
+                    task.isCompleted = !task.isCompleted
+                }
+            });
+            Object.assign(task,updateCompletion);
+            cardCheckbox.addEventListener('change', function cardCheckboxClick(Event){
+                task.updateCompletion();
+                project.updateCompletedTasks(projectPosition);
+                currentProject.setProgress();
+                document.getElementsByClassName('cardProgress')[projectPosition].setAttribute('style',`width: ${currentProject.progress}%`);
+                cardProgress.style.width = `${currentProject.progress}%`;
+                project.saveToLocal();
+            })
+            const cardTitle = createElement('div','taskTitle');
+            cardTitle.innerText = task.name;
+            const cardDate = createElement('div','taskDate');
+            cardDate.innerText = format(parseISO(task.dueDate),'dd/MM/yyyy');
+            const taskEditButton = createElement('button',`taskEditButton`);
+            taskEditButton.setAttribute('projectNumber',`${projectPosition}`);
+            taskEditButton.setAttribute('taskNumber',`${task.position}`);
+            taskEditButton.innerText = '✏️';
+            const taskDeleteButton = createElement('button','taskDeleteButton');
+            taskDeleteButton.setAttribute('projectNumber',`${projectPosition}`);
+            taskDeleteButton.setAttribute('taskNumber',`${task.position}`);
+            taskDeleteButton.innerText = '🗑️';
+            const cardImportance = createElement('div','taskImportance');
+            cardImportance.style.backgroundColor = _importanceColor(task);
+            taskCard.append(cardCheckbox , cardTitle , cardDate , taskEditButton , taskDeleteButton , cardImportance);
+            taskEditButton.addEventListener('click',_taskEditButton);
+            taskDeleteButton.addEventListener('click',project.deleteTask)
+            explorer.appendChild(taskCard);
+        }
+    }
+
 
     function _sidebarCardClick (){
         const clickedProjectPosition = () => {
@@ -368,16 +540,15 @@ const modifyDOM = (()=>{
         updateExplorer(clickedProjectPosition()); 
         }
 
-    function _explorerCardTitleClick (){
+    function _projectEditButton (){
         const currentProject = project.getMyProjects()[event.currentTarget.getAttribute('projectNumber')];
         document.getElementById('projectName').value = currentProject.name;
         document.getElementById('dueDate').value = currentProject.dueDate;
         modal.editProject();
         editingProject = event.currentTarget.getAttribute('projectNumber');
-        console.log(editingProject)
     }
 
-    function _explorerCardClick (){
+    function _taskEditButton (){
         const currentTask = project.getMyProjects()[event.currentTarget.getAttribute('projectNumber')].tasks[event.currentTarget.getAttribute('taskNumber')];
         document.getElementById('taskName').value = currentTask.name;
         document.getElementById('taskDueDate').value = currentTask.dueDate;
@@ -385,7 +556,7 @@ const modifyDOM = (()=>{
         document.getElementById('parentProject').value = currentTask.parentProject;
         modal.editTask();
         editingTask = [event.currentTarget.getAttribute('projectNumber') , event.currentTarget.getAttribute('taskNumber')];
-    }   
+    }
 
     function _removeElementsByClass(className){
         const elements = document.getElementsByClassName(className);
@@ -406,7 +577,7 @@ const modifyDOM = (()=>{
         newElement.setAttribute('class',className);
         return newElement
     }
-    return {addSidebarProject , createElement , updateExplorer}
+    return {addSidebarProject , createElement , updateExplorer , showAllProjects , showAllTasks}
 })()
 
 const modalCreateProject = document.getElementsByClassName('modalCreateProject');
@@ -437,3 +608,9 @@ const clearProjects = document.getElementsByClassName('clearProjects');
 for (const element of clearProjects){
     element.addEventListener('click',project.clearProjects)
 }
+
+const showAllProjects = document.getElementById('showAllProjects');
+showAllProjects.addEventListener('click',modifyDOM.showAllProjects)
+
+const showAllTasks = document.getElementById('showAllTasks');
+showAllTasks.addEventListener('click',modifyDOM.showAllTasks)

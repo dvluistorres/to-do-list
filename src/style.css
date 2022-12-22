@@ -1,8 +1,17 @@
+:root{
+  --importantColor: red;
+  --normalColor: orange;
+  --nonImportantColor: yellow;
+  --completedColor:green;
+}
+
 body{
     display:flex;
     flex-direction: column;
     margin: 0px;
 }
+
+/**************** HEADER ****************/
 
 .header {
     height: 60px;
@@ -21,15 +30,21 @@ body{
         height: 50px;
     }
 
+
+
 .content{
     display: flex;
     align-items: stretch;
 }
 
+
+/***********SIDEBAR********/
+
 .sidebar{
     display: flex;
     flex-direction: column;
-    width: 300px;
+    max-width: 300px;
+    width: 50%;
     background-color: darkcyan;
     flex: 0 1 300px;
     margin-bottom: auto;
@@ -109,6 +124,54 @@ body{
         box-shadow: 0px 3px 8px #aaa, inset 0px 3px 5px #fff;
     }
 
+
+/*********PROJECT SIDEBAR CARDS***********/
+
+  .sidebarCard:hover{
+    cursor: pointer;
+    scale: 1.05;
+    transition: 0.2s;
+    background-color: rgb(228, 215, 215);
+    border: solid 1px rgb(228, 215, 215);
+    box-shadow: 0px 3px 8px rgb(228, 215, 215), inset 0px 2px 3px rgb(228, 215, 215);
+}
+
+.sidebarCard>p{
+    margin: 8px 0px 5px 8px;
+}
+
+.sidebarCard>.cardProgressBar {
+    width: 70%;
+    background-color: grey;
+    margin-left: auto;
+    clip-path: polygon(5% 0%, 100% 0, 100% 100%, 0% 100%);
+  }
+
+  .sidebarCard .cardProgress {
+    height: 7px;
+    background-color: rgb(39, 39, 145);
+    transition: 0.2s;
+
+  }
+
+  .createTask-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1, 1);
+    background: rgba(0, 0, 0, 0.5);
+    transition: 0.5s;
+  }
+
+
+/************MODALS************/
+
     .createProject-background {
         position: fixed;
         top: 0;
@@ -172,6 +235,45 @@ body{
         translate: -50% -50%;
       }
 
+      body.taskModal .createTask-background {
+        visibility: visible;
+        opacity: 1;
+        animation: background-in 1s both;
+      }
+
+      .createTask {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        background: #3f3f3f;
+        color: #f9f9f9;
+        padding: 24px 24px;
+        width: 400px;
+        border-radius: 12px;
+        translate: -50% -50%;
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s;
+        font-weight: 900;
+      }
+
+      body.taskModal .createTask {
+        opacity: 1;
+        visibility: visible;
+        animation: modal-in 0.5s;
+        font-family:fantasy;
+    }
+
+      
+    body.open .createTask {
+    opacity: 0;
+    visibility: hidden;
+    translate: -50% -50%;
+    }
+
+
+/************MODAL CONTENT***********/
+
       fieldset {
         border-radius: 12px;
         display: flex;
@@ -215,80 +317,152 @@ body{
         transition: 0.2s;
     }
 
-    .sidebarCard:hover{
-        cursor: pointer;
-        scale: 1.05;
-        transition: 0.2s;
-        background-color: rgb(228, 215, 215);
-        border: solid 1px rgb(228, 215, 215);
-        box-shadow: 0px 3px 8px rgb(228, 215, 215), inset 0px 2px 3px rgb(228, 215, 215);
-    }
-
-    .sidebarCard>p{
-        margin: 8px 0px 5px 8px;
-    }
-
-    .cardProgressBar {
-        width: 70%;
-        background-color: grey;
-        margin-left: auto;
-        clip-path: polygon(5% 0%, 100% 0, 100% 100%, 0% 100%);
-      }
-
-    .cardProgress {
-        height: 7px;
-        background-color: rgb(39, 39, 145);
-        transition: 0.2s;
-        
-      }
-
-      .createTask-background {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: grid;
-        place-items: center;
-        opacity: 0;
-        visibility: hidden;
-        transform: scale(1, 1);
-        background: rgba(0, 0, 0, 0.5);
-        transition: 0.5s;
-      }
-
-      body.taskModal .createTask-background {
-        visibility: visible;
-        opacity: 1;
-        animation: background-in 1s both;
-      }
-
-      .createTask {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        background: #3f3f3f;
-        color: #f9f9f9;
-        padding: 24px 24px;
-        width: 400px;
-        border-radius: 12px;
-        translate: -50% -50%;
-        opacity: 0;
-        visibility: hidden;
-        transition: 0.3s;
-        font-weight: 900;
-      }
-
-      body.taskModal .createTask {
-        opacity: 1;
-        visibility: visible;
-        animation: modal-in 0.5s;
-        font-family:fantasy;
-    }
 
       
-    body.open .createTask {
-    opacity: 0;
-    visibility: hidden;
-    translate: -50% -50%;
-    }
+
+/**************** EXPLORER *****************/
+
+.explorer{
+  display:flex;
+  flex-wrap: wrap;
+  flex: 1;
+  align-content: flex-start;
+}
+
+.explorerCard{
+  flex: 0 1 86%;
+  height: fit-content;
+  display: block;
+  text-decoration: none;
+  font-weight: bolder;
+  --background: rgb(243, 230, 230);
+  background-color: var(--background);
+  color: #5e5b5b;
+  font-size: 20px;
+  margin: 20px auto 20px auto;
+  width: 86%;
+  text-align: left;
+  border-radius: 10px;
+  box-shadow: 0px 3px 8px #aaa, inset 0px 2px 3px #fff;
+  border: solid 1px transparent;
+  position: relative;
+  transition: 0.2s;
+}
+
+.explorerCard>.cardProgressBar{
+  width: 70%;
+  background-color: grey;
+  margin-left: auto;
+  clip-path: polygon(5% 0%, 100% 0, 100% 100%, 0% 100%);
+}
+
+.explorerCard .cardProgress{
+  height: 20px;
+  background-color: rgb(39, 39, 145);
+  transition: 0.2s;
+}
+
+.explorerCard .cardTitle{
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 28px;
+  display: flex;
+  gap: 5%;
+}
+
+.explorerCard .cardDate{
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.explorerCard .projectEditButton{
+  margin-left: auto;
+  margin-right: 16px;
+  height: 40px;
+
+}
+
+.explorerCard button{
+  background-color: var(--background);
+  font-size: 28px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.explorerCard button:hover{
+  scale: 1.1;
+}
+
+.taskCard{
+  flex: 0 1 40%;
+  height: 50px;
+  display: flex;
+  text-decoration: none;
+  font-weight: 600;
+  --background: rgb(206, 160, 160);
+  background-color: var(--background);
+  color: #1b1b1b;
+  font-size: 20px;
+  margin: 20px auto 20px auto;
+  padding: 5px 10px 5px 10px;
+  align-items: center;
+  border-radius: 10px;
+  box-shadow: 0px 3px 8px #aaa, inset 0px 2px 3px #fff;
+  border: solid 1px transparent;
+  position: relative;
+  transition: 0.2s;
+  min-width: fit-content;
+
+}
+
+.taskCard .cardCheckbox{
+  border: 2px solid green;
+  background-color: white;
+  color:green;
+  cursor: pointer;
+  --diameter:20px;
+  height: var(--diameter);
+  width: var(--diameter);
+  border-radius: 10px;
+  transition: 0.2s;
+  appearance:none;
+}
+
+.taskCard .cardCheckbox:checked{
+  background-color: green;
+}
+
+.taskCard .cardCheckbox:checked::after{
+  content: "\2713";
+  color: white;
+  margin: auto;
+  font-size: 130%;
+}
+
+.taskCard .taskDate{
+  width: fit-content;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.taskCard .taskEditButton{
+  margin-left: auto;
+  margin-right: 3px;
+
+}
+
+.taskCard button{
+  background-color: var(--background);
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+  height: 20px;
+}
+
+.taskCard button:hover{
+  scale: 1.2;
+}
