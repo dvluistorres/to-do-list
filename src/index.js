@@ -1,12 +1,13 @@
 import './style.css';
+import 'alertifyjs/build/css/alertify.css';
 import {footer} from './devFooter';
 import { compareAsc, format, parseISO } from 'date-fns'
+import alertify from 'alertifyjs';
 
 
 footer.add();
 let editingTask = [];
 let editingProject = 0
-
 
 const project = (()=>{
     const _projectFactory = (name , importance , dueDate) => {
@@ -43,16 +44,16 @@ const project = (()=>{
         const projectName = document.getElementById('projectName').value;
         const myProjectsNames = myProjects.map(project => project.name.toLowerCase());
         if (myProjectsNames.includes(projectName.toLowerCase())){
-            alert("Project name already in use");
+            alertify.alert('Error',"Project name already in use");
             return
         }
         const projectImportance = document.querySelector('input[name="ProjectImportance"]:checked').value;
         const dueDate = document.getElementById('dueDate').value;
         if (compareAsc(parseISO(dueDate),new Date()) < 0){
-            alert("Due date already passed");
+            alertify.alert('Error',"Due date already passed");
             return
         } else if (dueDate == ''){
-            alert('Please insert due date');
+            alertify.alert('Error','Please insert due date');
             return
         }
         const newProject = _projectFactory(projectName,projectImportance, dueDate);
@@ -76,16 +77,16 @@ const project = (()=>{
         const myProjectsNames = myProjects.map(project => project.name.toLowerCase());
         myProjectsNames.splice(currentProject.position,1);//Don't check for actual name
         if (myProjectsNames.includes(projectName.toLowerCase())){
-            alert("Project name already in use");
+            alertify.alert('Error',"Project name already in use");
             return
         }
         const projectImportance = document.querySelector('input[name="ProjectImportance"]:checked').value;
         const dueDate = document.getElementById('dueDate').value;
         if (compareAsc(parseISO(dueDate),new Date()) < 0){
-            alert("Due date already passed");
+            alertify.alert('Error',"Due date already passed");
             return
         } else if (dueDate == ''){
-            alert('Please insert due date');
+            alertify.alert('Error','Please insert due date');
             return
         }
         let currentTasks = currentProject.tasks;
@@ -108,18 +109,19 @@ const project = (()=>{
         saveToLocal();
     }
 
-    function deleteProject(){
-        if(!confirm('Are you sure you want to delete this project?')){return}
-        const projectNumber = event.currentTarget.getAttribute('projectNumber')
-        myProjects.splice(projectNumber,1);
-        let positionCounter = 0;
-        for (const project of myProjects){
-            project.position = positionCounter;
-            positionCounter++;
-        }
-        modifyDOM.addSidebarProject(myProjects);
-        modifyDOM.updateExplorer(projectNumber);
-        saveToLocal();
+    function deleteProject() {
+        alertify.confirm('Are you sure you want to delete this project?',(e) => {
+          const projectNumber = event.currentTarget.getAttribute('projectNumber')
+          myProjects.splice(projectNumber,1);
+          let positionCounter = 0;
+          for (const project of myProjects) {
+              project.position = positionCounter;
+              positionCounter++;
+          }
+          modifyDOM.addSidebarProject(myProjects);
+          modifyDOM.updateExplorer(0);
+          saveToLocal();
+        });
     }
 
     function addTask(){
@@ -128,15 +130,15 @@ const project = (()=>{
         const parentProjectIndex = myProjects.map(project => project.name).indexOf(parentProject);
         const myProjectTasksNames = myProjects[parentProjectIndex].tasks.map(task => task.name.toLowerCase());
         if (myProjectTasksNames.includes(taskName.toLowerCase())){
-            alert("Task name already in use in this project");
+            alertify.alert('Error',"Task name already in use in this project");
             return
         }
         const taskDueDate = document.getElementById('taskDueDate').value;
         if (compareAsc(parseISO(taskDueDate),new Date()) < 0){
-            alert("Due date already passed");
+            alertify.alert('Error',"Due date already passed");
             return
         } else if (taskDueDate == ''){
-            alert('Please insert due date');
+            alertify.alert('Error','Please insert due date');
             return
         }
         const taskImportance = document.querySelector('input[name="taskImportance"]:checked').value;
@@ -167,15 +169,15 @@ const project = (()=>{
         const myProjectTasksNames = myProjects[parentProjectIndex].tasks.map(task => task.name.toLowerCase());
         myProjectTasksNames.splice(myProjectTasksNames.indexOf(currentTask.name),1);//Don't check for actual name
         if (myProjectTasksNames.includes(taskName.toLowerCase())){
-            alert("Task name already in use in this project");
+            alertify.alert('Error',"Task name already in use in this project");
             return
         }
         const taskDueDate = document.getElementById('taskDueDate').value;
         if (compareAsc(parseISO(taskDueDate),new Date()) < 0){
-            alert("Due date already passed");
+            alertify.alert('Error',"Due date already passed");
             return
         } else if (taskDueDate == ''){
-            alert('Please insert due date');
+            alertify.alert('Error','Please insert due date');
             return
         }
         currentTask.name = taskName;
@@ -196,17 +198,18 @@ const project = (()=>{
     }
 
     function deleteTask(){
-        if(!confirm('Are you sure you want to delete this task?')){return}
-        const projectNumber = event.currentTarget.getAttribute('projectNumber')
-        const taskNumber = event.currentTarget.getAttribute('taskNumber')
+      const projectNumber = event.currentTarget.getAttribute('projectNumber');
+      const taskNumber = event.currentTarget.getAttribute('taskNumber');
+      alertify.confirm('Are you sure you want to delete this task?',(e) =>{
         myProjects[projectNumber].tasks.splice(taskNumber,1);
         let positionCounter = 0;
-        for (const task of myProjects[projectNumber].tasks){
+        for (const task of myProjects[projectNumber].tasks) {
             task.position = positionCounter;
             positionCounter++;
         }
         modifyDOM.updateExplorer(projectNumber);
         saveToLocal();
+      })
     }
 
     function clearProjects(){
