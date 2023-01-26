@@ -49,7 +49,7 @@ body{
     flex: 0 1 300px;
     margin-bottom: auto;
     align-content: stretch;
-    height: min(calc(100vh - 60px - 45px));
+    height: calc(100vh - 60px - 45px);
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -327,6 +327,9 @@ body{
   flex-wrap: wrap;
   flex: 1;
   align-content: flex-start;
+  height: calc(100vh - 60px - 45px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .explorerCard{
